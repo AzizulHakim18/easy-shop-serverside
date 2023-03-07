@@ -29,11 +29,22 @@ async function run() {
 
         // all services
         app.get('/getallproducts', async (req, res) => {
+
+            const page = parseInt(req.query.page)
+            const size = parseInt(req.query.size)
+            console.log(page, size);
             const query = {}
             const cursor = productCollection.find(query);
-            const products = await cursor.toArray();
-            res.send(products)
+            const products = await cursor.skip(page * size).limit(size).toArray();
+            const count = await productCollection.estimatedDocumentCount();
+            res.send({ products, count })
         })
+        // // pegination
+        // app.get('/getallproductscount', async (req, res) => {
+        //     const count = await productCollection.estimatedDocumentCount();
+        //     console.log(count);
+        //     res.send({ count })
+        // })
 
         // order post
         app.post('/orders', (async (req, res) => {
