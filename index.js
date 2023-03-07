@@ -27,7 +27,17 @@ async function run() {
         const productCollection = client.db('shopeasydb').collection("products");
         const orderCollection = client.db('shopeasydb').collection("orders");
 
-        // all services
+
+        // post product details
+        app.post('/getallproducts', (async (req, res) => {
+
+            const productsDetails = req.body;
+            console.log(productsDetails);
+            const result = await productCollection.insertOne(productsDetails);
+            console.log(result);
+            res.send(result);
+        }))
+        // all products
         app.get('/getallproducts', async (req, res) => {
 
             const page = parseInt(req.query.page)
@@ -39,14 +49,15 @@ async function run() {
             const count = await productCollection.estimatedDocumentCount();
             res.send({ products, count })
         })
-        // // pegination
-        // app.get('/getallproductscount', async (req, res) => {
-        //     const count = await productCollection.estimatedDocumentCount();
-        //     console.log(count);
-        //     res.send({ count })
-        // })
+        // delete product id
+        app.delete('/getallproducts/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await productCollection.deleteOne(query)
+            res.send(result);
+        })
 
-        // order post
+        // get orders and post orders
         app.post('/orders', (async (req, res) => {
 
             const order = req.body;
@@ -62,6 +73,8 @@ async function run() {
             const orders = await cursor.toArray()
             res.send(orders)
         })
+
+
     }
     finally {
 
